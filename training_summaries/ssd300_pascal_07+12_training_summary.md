@@ -1,25 +1,25 @@
 ## SSD300 Pascal VOC 07+12 Training Summary
 ---
 
-This is a summary of the training of an SSD300 on the Pascal VOC 2007 `trainval` and 2012 `trainval` image sets using the same configuration as in the original Caffe implementation for that same model.
+이는 동일한 모델의 원래 카페인이 구현된 것과 동일한 구성을 사용하는 Pascal VOC 2007 "열차" 및 2012년 "열차" 이미지 세트에 대한 SSD300 교육을 요약한 것입니다.
 
-Since neither the SSD paper nor the GitHub repository of the original Caffe SSD implementation state details on the training progress, but only the final evaluation results, maybe some will find the loss curves and intermediate mAP evaluation results provided here helpful for comparison with their own training.
+원래 Caffe SSD 구현 상태의 SSD 페이퍼나 GitHub 저장소는 교육 진행 상황에 대한 세부 정보가 아니라 최종 평가 결과만 제공하므로, 일부는 여기에 제공된 손실 곡선 및 중간 mAP 평가 결과를 자체 교육과의 비교에 도움이 될 수 있습니다.
 
-What you see below are the training results of running the [`ssd300_training.ipynb`](../ssd300_training.ipynb) notebook as is, in which all parameters are already preset to replicate the training configuration of the original SSD300 "07+12" model. I just made one small change: I occasionally ran into `OOM` errors at batch size 32, so I trained with batch size 31.
+아래에는 기존의 SSD300 "07+12" 모델의 교육 구성을 복제할 수 있도록 모든 매개 변수가 이미 사전 설정된 노트북 실행에 대한 교육 결과가 나와 있습니다. 한 가지 작은 변화를 시도했습니다. 32배 크기 OOM 오류도 종종 발생하고, 31배치 크기 훈련도 했습니다.
 
-Important note about the data shown below:
+아래에 나와 있는 데이터에 대한 중요 사항은 다음과 같습니다.
 
-SGD is inherently unstable at the beginning of the training. Remember that the optimization is stochastic, i.e. if you start a fresh training ten times, the loss pattern over the first training steps can look different each time, and in the case of SGD, very different. One time the loss might decrease smoothly right from the start, which is what happened in my case below. Another time the loss might get temporarily stuck on a plateau very early on such that nothing seems to be happening for a couple of hundred training steps. Yet another time the loss might blow up right at the start and become `NaN`. As long as the loss doesn't become `NaN`, the final convergence loss does, in my experience, not strongly depend on the loss progression in the very early phase of the training. In other words, even if the loss doesn't decrease as fast in the beginning, you will likely still end up with the same convergence loss, it will just take longer to get there. Just as a benchmark, after the first 1,000 training steps I've seen anything between around 10 and 15 as values for the training loss. The Adam optimizer doesn't suffer from this variability to the same extent and is evidently the superior optimizer, but since the original Caffe models were trained with SGD, I used that to reproduce the original results.
+SGD는 교육 시작 시 기본적으로 불안정합니다. 최적화는 확률적입니다. 즉, 새로운 교육을 10번 시작하면 첫 번째 교육 단계의 손실 패턴이 매번 다르게 보일 수 있습니다. SGD의 경우 매우 다르게 보입니다. 한 번은 시작부터 손실이 부드럽게 감소하는 경우가 있었는데, 이것이 바로 제 경우입니다. 또 한 번, 수백 번의 훈련 과정 동안 아무 일도 일어나지 않는 것처럼 보이는 매우 이른 시기에 손실이 일시적으로 고원에 갇히게 될 수도 있습니다. 그러나 또 한번의 패배는 시작하자마자 폭발해 NaN이 될 수도 있습니다. 손실이 NaN이 되지 않는 한, 최종 정합화 손실은 교육 초기 단계의 손실 진행에 크게 의존하지 않습니다. 다시 말해, 비록 처음에는 손실이 빨리 감소하지 않더라도, 여러분은 여전히 같은 정합화 손실을 입게 될 것이고, 거기에 도달하는 데 더 오랜 시간이 걸릴 것입니다. 벤치마크로, 처음 1,000번의 교육 단계를 거친 후 저는 10~15번의 교육 손실에 대한 가치로 보았습니다. 애덤 옵티마이저(Adam Optimizer)는 같은 정도의 변동성을 겪지 않으며, 분명히 우수한 최적화 도구입니다. 하지만 원래의 카페(Caffe) 모델은 SGD로 훈련되었기 때문에 저는 원래 결과를 재현하기 위해 그것을 사용했습니다.
 
 ### Training and Validation Loss
 
-What you see below are the training and validation loss every 1,000 training steps. The validation loss is computed on the Pascal VOC 2007 `test` image set. In my case it took only around 105,000 instead of the expected 120,000 iterations for the validation loss to converge, but as explained above, it may well take longer. The drop you're seeing at 56,000 training steps was when I reduced the learning rate from 0.001 to 0.0001. The original learning rate schedule schedules this reduction only after 80,000 training steps, but since the loss decreased so quickly in the beginning in my case, I had to decrease the learning rate earlier. I reduced the learning rate to 0.00001 after 76,000 training steps and kept it constant from there.
+아래에 나와 있는 내용은 1,000개의 교육 단계마다 교육 및 검증 손실입니다. 검증 손실은 Pascal VOC 2007 '테스트' 이미지 세트로 계산됩니다. 제 경우, 검증 손실이 수렴되는 데 예상된 12만 번이 아니라 약 10만 5천 번 정도 밖에 걸리지 않았습니다. 그러나 위에서 설명한 바와 같이, 시간이 더 오래 걸릴 수 있습니다. 56,000개의 교육 단계를 통해 학습 속도를 0.001에서 0.0001로 낮췄습니다. 원래의 학습 속도 일정은 8만 번의 교육 과정 후에만 이러한 감소가 계획됩니다. 하지만 제 경우 처음에는 손실이 너무 빨리 감소했기 때문에, 저는 일찍 학습 속도를 줄여야 했습니다. 7만 6천 개의 교육 단계를 거치고 학습 속도를 0.00001로 줄여서 그 단계로부터 일정하게 유지했습니다.
 
 ![loss_history](ssd300_pascal_07+12_loss_history.png)
 
 ### Mean Average Precision
 
-Here are the intermediate and final mAP values on Pascal VOC 2007 `test`, evaluated using the official Pascal VOCdevkit 2007 Matlab evaluation code. The table shows the best values after every 20,000 training steps. Once again, the progress may be slower depending on how the early phase of the training is going. In another training I started with the same configuration, I got an mAP of only 0.665 after the first 20,000 training steps. The full model after 102,000 training steps can be downloaded [here](https://drive.google.com/open?id=1-MYYaZbIHNPtI2zzklgVBAjssbP06BeA).
+공식 Pascal VOCdvkit 2007 Matlab 평가 코드를 사용하여 평가한 Pascal VOC 2007 테스트의 중간 및 최종 mAP 값입니다. 이 표에는 20,000개의 교육 단계마다 최고의 값이 나와 있습니다. 다시 한 번, 교육 초기 단계에 따라 진행 속도가 느려질 수 있습니다. 같은 구성으로 시작한 또 다른 훈련에서는 처음 20,000번의 훈련 단계를 거친 후에 겨우 0.665의 mAP를 받았습니다. 교육 단계 102,000 이후의 전체 모델을 다운로드할 수 있습니다. [here](https://drive.google.com/open?id=1-MYYaZbIHNPtI2zzklgVBAjssbP06BeA).
 
 |             | Steps |  20k     |  40k     |  60k     |  80k     |  100k    |  102k    |
 |-------------|-------|----------|----------|----------|----------|----------|----------|
